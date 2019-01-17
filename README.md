@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/auto-oncall.svg?&style=shield&circle-token=03d2446a590221c8604e7f540ea4cd1a4b929f14)](https://circleci.com/gh/giantswarm/auto-oncall)
-
 # auto-oncall
 auto-oncall application is a webhook handler, responsible for creating new Opsgenie routing rules on every merge event into master branch.
 
