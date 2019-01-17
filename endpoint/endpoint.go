@@ -17,7 +17,7 @@ import (
 const (
 	masterRef       = "refs/heads/master"
 	listenAddres    = 8000
-	oncallEndpoint  = "/"
+	webhookEndpoint = "/webhook"
 	routingRuleTTL  = time.Hour * time.Duration(1)
 	routingRuleType = "match-all-conditions"
 )
@@ -62,7 +62,14 @@ func writeJSONResponse(w http.ResponseWriter, status int, data []byte) {
 	w.Write(data)
 }
 
-func (o *Oncall) oncallHandler(w http.ResponseWriter, r *http.Request) {
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	var response []byte
+
+	response, _ = json.Marshal(healthCheckResponse{Status: "webhook handler"})
+	writeJSONResponse(w, http.StatusOK, response)
+}
+
+func (o *Oncall) webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	var response []byte
 
@@ -157,7 +164,8 @@ func New(c Config) (Oncall, error) {
 
 func (o *Oncall) NewServer() *http.ServeMux {
 	s := http.NewServeMux()
-	s.HandleFunc(oncallEndpoint, o.oncallHandler)
+	s.HandleFunc("/", defaultHandler)
+	s.HandleFunc(webhookEndpoint, o.webhookHandler)
 
 	return s
 }
