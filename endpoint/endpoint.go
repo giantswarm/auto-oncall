@@ -82,6 +82,8 @@ func (o *Oncall) webhookHandler(w http.ResponseWriter, r *http.Request) {
 		response, _ = json.Marshal(healthCheckResponse{Status: "webhook request received"})
 		writeJSONResponse(w, http.StatusOK, response)
 
+		o.logger.Log("level", "debug", "message", fmt.Sprintf("received push event into repository %#q", h.Event.Repository.Name), "user", h.Event.Pusher.Name, "ref", h.Event.Ref)
+
 		if h.Event.Ref == masterRef && stringInSlice(h.Event.Repository.Name, o.repositories) {
 			o.logger.Log("level", "debug", "repository", h.Event.Repository.Name, "message", "push event into master branch received", "user", h.Event.Pusher.Name)
 
