@@ -124,7 +124,7 @@ func (o *Oncall) createRoutingRule(event githubhook.Event) error {
 		return microerror.Maskf(userNotFoundError, event.Pusher.Name)
 	}
 	routingRule := &opsgenie.RoutingRule{
-		Name:       fmt.Sprintf("autooncall-%s-%s", event.HeadCommit.ID[:5], strconv.FormatInt(ttl, 10)),
+		Name:       fmt.Sprintf("auto-%s-%s-%s-%s", event.Repository.Name, event.HeadCommit.ID[:5], event.Pusher.Name, strconv.FormatInt(ttl, 10)),
 		Conditions: conditions,
 		Type:       routingRuleType,
 		User:       user,
