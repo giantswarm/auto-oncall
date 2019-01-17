@@ -1,4 +1,4 @@
-// Package githubhook implements handling and verification of github webhooks
+// Package githubhook implements handling and verification of github webhooks.
 package githubhook
 
 import (
@@ -19,12 +19,12 @@ const (
 	signatureLength = 45 // len(SignaturePrefix) + len(hex(sha1))
 )
 
-// Hook is an inbound github webhook
+// Hook is an inbound github webhook.
 type Hook struct {
 
 	// Id specifies the Id of a github webhook request.
 	Id string
-	// Event contains unmarshaled webhook
+	// Event contains unmarshaled webhook.
 	Event Event
 	// Event specifies the event name of a github webhook request.
 	EventName string
@@ -40,7 +40,7 @@ func signBody(secret, body []byte) []byte {
 	return []byte(computed.Sum(nil))
 }
 
-// SignedBy checks that the provided secret matches the hook Signature
+// SignedBy checks that the provided secret matches the hook Signature.
 //
 // Implements validation described in github's documentation:
 // https://developer.github.com/webhooks/securing/
