@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	listenAddres           = 8080
+	listenAddres           = 8000
 	opsgenieTokenEnv       = "OPSGENIE_TOKEN"
 	githubWebhookSecretEnv = "GITHUB_WEBHOOK_SECRET"
 )
 
-var configpath = flag.String("config", "/etc/oncall/config.yaml", "path to configuration file")
+var configpath = flag.String("config", "/etc/auto-oncall/config.yaml", "path to configuration file")
 var help = flag.Bool("help", false, "show help for this tool")
 
 func main() {
