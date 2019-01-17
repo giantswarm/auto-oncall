@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: auto-oncall
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: auto-oncall
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: auto-oncall
+    spec:
+      volumes:
+      - name: auto-oncall
+        configMap:
+          name: auto-oncall-configmap
+          items:
+          - key: config.yaml
+            path: config.yaml
+      containers:
+      - name: auto-oncall
+        image: quay.io/giantswarm/auto-oncall:latest
+        volumeMounts:
+        - name: auto-oncall
+          mountPath: /etc/auto-oncall
+          readOnly: true
+        ports:
+        - name: http
+          containerPort: 8000
+        args:
+        - -config=/etc/auto-oncall/config.yaml
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 10
+        env:
+        - name: OPSGENIE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: auto-oncall-secret
+              key: opsgenieToken
+        - name: GITHUB_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auto-oncall-secret
+              key: githubWebhookSecret
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
+          limits:
+            cpu: 25m
+            memory: 25Mi

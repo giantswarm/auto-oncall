@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auto-oncall-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  config.yaml: |
+    repositories: {{ .Values.repositories }}
+    users:
+      {{- range $key, $val := .Values.users }}
+      {{ $key }}: {{ $val | quote }}
+      {{- end}}

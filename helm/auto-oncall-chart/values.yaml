@@ -1,0 +1,18 @@
+# host address for ingress resource
+host: auto-oncall.<BASE_DOMAIN>
+# Github organization webhook secret
+githubWebhookSecret: <WEBHOOK_SECRET>
+# deployment namespace
+namespace: operations
+tls:
+  enabled: true
+  issuerType: ClusterIssuer
+  issuerName: letsencrypt-prod
+# list of applications, configured for automated oncall rules
+repositories:
+  - test-oncall
+# Opsgenie token string
+opsgenieToken: <OPSGENIE_TOKEN>
+# user mapping `github_user:opsgenie user' 
+users:
+  "<github_nickname>": "<opsgenie_email>"

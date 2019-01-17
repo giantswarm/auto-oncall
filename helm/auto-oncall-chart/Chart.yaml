@@ -1,0 +1,3 @@
+name: auto-oncall-chart
+version: 1.0.0-[[ .SHA ]]
+
