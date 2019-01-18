@@ -1,7 +1,8 @@
 package oncall
 
 type Oncall struct {
-	ConfigFilePath string
-	OpsgenieToken  string
-	WebhookSecret  string
+	Repositories  string
+	OpsgenieToken string
+	Users         string
+	WebhookSecret string
 }

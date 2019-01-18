@@ -2,8 +2,6 @@ package webhook
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"strconv"
 	"time"
 
@@ -21,14 +19,10 @@ const (
 type Config struct {
 	Logger micrologger.Logger
 
-	ConfigFilePath string
-	OpsgenieToken  string
-	WebhookSecret  string
-}
-
-type ConfigFile struct {
-	Repositories []string          `yaml:"repositories"`
-	Users        map[string]string `yaml:"users"`
+	Repositories  []string
+	OpsgenieToken string
+	Users         map[string]string
+	WebhookSecret string
 }
 
 type Service struct {
@@ -40,9 +34,6 @@ type Service struct {
 }
 
 func New(c Config) (*Service, error) {
-	if c.ConfigFilePath == "" {
-		return nil, microerror.Maskf(invalidConfigError, "ConfigFile path must not be empty")
-	}
 	if c.OpsgenieToken == "" {
 		return nil, microerror.Maskf(invalidConfigError, "OPSGENIE_TOKEN environment variable token must not be empty")
 	}
@@ -50,22 +41,11 @@ func New(c Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "GITHUB_WEBHOOK_SECRET environment variable must not be empty")
 	}
 
-	yamlFile, err := ioutil.ReadFile(c.ConfigFilePath)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	configFile := ConfigFile{}
-	err = yaml.Unmarshal(yamlFile, &configFile)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	service := &Service{
 		logger:        c.Logger,
+		repositories:  c.Repositories,
 		opsgenieToken: c.OpsgenieToken,
-		repositories:  configFile.Repositories,
-		users:         configFile.Users,
+		users:         c.Users,
 		webhookSecret: []byte(c.WebhookSecret),
 	}
 

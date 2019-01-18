@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
@@ -104,10 +103,10 @@ func main() {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
-	daemonCommand.PersistentFlags().String(f.Service.Oncall.ConfigFilePath, "/etc/auto-oncall/config.yaml", "Application configuration file.")
-
-	f.Service.Oncall.OpsgenieToken = os.Getenv(opsgenieTokenEnv)
-	f.Service.Oncall.WebhookSecret = os.Getenv(githubWebhookSecretEnv)
+	daemonCommand.PersistentFlags().StringSlice(f.Service.Oncall.Repositories, []string{}, "List of repositories names, separated by comma.")
+	daemonCommand.PersistentFlags().String(f.Service.Oncall.OpsgenieToken, "", "Opsgenie API token.")
+	daemonCommand.PersistentFlags().StringToString(f.Service.Oncall.Users, map[string]string{}, "github_id:opsgenie_id mapppings, separated by comma.")
+	daemonCommand.PersistentFlags().String(f.Service.Oncall.WebhookSecret, "", "Github organization webhook secret.")
 
 	newCommand.CobraCommand().Execute()
 }

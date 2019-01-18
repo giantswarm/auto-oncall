@@ -58,9 +58,10 @@ func New(config Config) (*Service, error) {
 		webhookConfig := webhook.Config{
 			Logger: config.Logger,
 
-			ConfigFilePath: config.Viper.GetString(config.Flag.Service.Oncall.ConfigFilePath),
-			OpsgenieToken:  config.Viper.GetString(config.Flag.Service.Oncall.OpsgenieToken),
-			WebhookSecret:  config.Viper.GetString(config.Flag.Service.Oncall.WebhookSecret),
+			Repositories:  config.Viper.GetStringSlice(config.Flag.Service.Oncall.Repositories),
+			OpsgenieToken: config.Viper.GetString(config.Flag.Service.Oncall.OpsgenieToken),
+			Users:         config.Viper.GetStringMapString(config.Flag.Service.Oncall.Users),
+			WebhookSecret: config.Viper.GetString(config.Flag.Service.Oncall.WebhookSecret),
 		}
 
 		webhookService, err = webhook.New(webhookConfig)
