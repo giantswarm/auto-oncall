@@ -27,14 +27,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:03ab34b260f18da36de9b6d24348c3ec4174c4342ea9da39daf5f51f24f815df"
-  name = "github.com/giantswarm/microendpoint"
-  packages = ["service/version"]
-  pruneopts = "UT"
-  revision = "f77c569259aef9cea5e38d0d7d94bf1d7d07d136"
-
-[[projects]]
-  branch = "master"
   digest = "1:f7ae60209ba785a98a5b27ed43ec9778f74e6c7623b5ff3d86f900f66c86fac1"
   name = "github.com/giantswarm/microerror"
   packages = ["."]
@@ -43,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:df57452799fcd9560cada423645569ceff9c953fdcef62844c7abeb2b7a4d96c"
+  digest = "1:e84b052d9547d99b68c1e7555404f9c1934cce841011dc5c72504b4bc9566097"
   name = "github.com/giantswarm/microkit"
   packages = [
     "command",
@@ -60,7 +52,6 @@
     "flag",
     "server",
     "tls",
-    "validator",
   ]
   pruneopts = "UT"
   revision = "aaff79223ca0620a1b6506f0b598da59557659e6"
@@ -385,17 +376,16 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/giantswarm/microendpoint/service/version",
     "github.com/giantswarm/microerror",
     "github.com/giantswarm/microkit/command",
     "github.com/giantswarm/microkit/flag",
     "github.com/giantswarm/microkit/server",
-    "github.com/giantswarm/microkit/validator",
     "github.com/giantswarm/micrologger",
     "github.com/giantswarm/opsctl/service/opsgenie",
-    "github.com/go-kit/kit/log",
+    "github.com/go-kit/kit/endpoint",
     "github.com/go-kit/kit/transport/http",
     "github.com/spf13/viper",
+    "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
