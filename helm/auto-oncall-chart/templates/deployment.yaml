@@ -16,24 +16,36 @@ spec:
         app: auto-oncall
     spec:
       volumes:
-      - name: auto-oncall
+      - name: auto-oncall-configmap
         configMap:
           name: auto-oncall-configmap
           items:
           - key: config.yaml
             path: config.yaml
+      - name: auto-oncall-secret
+        configMap:
+          name: auto-oncall-secret
+          items:
+          - key: secret.yaml
+            path: secret.yaml
       containers:
       - name: auto-oncall
         image: quay.io/giantswarm/auto-oncall:latest
         volumeMounts:
-        - name: auto-oncall
-          mountPath: /etc/auto-oncall
+        - name: auto-oncall-configmap
+          mountPath: /var/run/auto-oncall/configmap/
+        - name: auto-oncall-secret
+          mountPath: /var/run/auto-oncall/secret/
           readOnly: true
         ports:
         - name: http
           containerPort: 8000
         args:
-        - -config=/etc/auto-oncall/config.yaml
+        - daemon
+        - --config.dirs=/var/run/auto-oncall/configmap/
+        - --config.dirs=/var/run/auto-oncall/secret/
+        - --config.files=config
+        - --config.files=secret
         livenessProbe:
           httpGet:
             path: /
