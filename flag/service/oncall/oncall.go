@@ -1,8 +1,8 @@
 package oncall
 
 type Oncall struct {
-	Repositories  string
-	OpsgenieToken string
-	Users         string
-	WebhookSecret string
+	Repositories  string `yaml:"repositories"`
+	OpsgenieToken string `yaml:"opsgenieToken"`
+	Users         string `yaml:"users"`
+	WebhookSecret string `yaml:"webhookSecret"`
 }
