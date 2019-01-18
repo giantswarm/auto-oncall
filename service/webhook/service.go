@@ -35,10 +35,10 @@ type Service struct {
 
 func New(c Config) (*Service, error) {
 	if c.OpsgenieToken == "" {
-		return nil, microerror.Maskf(invalidConfigError, "OPSGENIE_TOKEN environment variable token must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "Opsgenie token must not be empty")
 	}
 	if c.WebhookSecret == "" {
-		return nil, microerror.Maskf(invalidConfigError, "GITHUB_WEBHOOK_SECRET environment variable must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "Github organization webhook secret must not be empty")
 	}
 
 	service := &Service{

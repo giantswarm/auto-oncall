@@ -83,6 +83,7 @@ func New(config Config) (*Server, error) {
 
 			Endpoints: []microserver.Endpoint{
 				endpointCollection.Version,
+				endpointCollection.Webhook,
 			},
 		},
 		shutdownOnce: sync.Once{},

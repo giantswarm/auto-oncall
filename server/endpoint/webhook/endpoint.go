@@ -37,6 +37,10 @@ func New(config Config) (*Endpoint, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "logger must not be empty")
 	}
+	if config.Middleware == nil {
+		return nil, microerror.Maskf(invalidConfigError, "middleware must not be empty")
+	}
+
 	if config.Service == nil {
 		return nil, microerror.Maskf(invalidConfigError, "service must not be empty")
 	}
