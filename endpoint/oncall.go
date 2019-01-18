@@ -46,34 +46,30 @@ type Oncall struct {
 	webhookSecret []byte
 }
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
+func New(c Config) (Oncall, error) {
+	if c.OpsgenieToken == "" {
+		return Oncall{}, microerror.Maskf(invalidConfigError, "OPSGENIE_TOKEN environment variable token must not be empty")
 	}
-	return false
-}
+	if c.WebhookSecret == "" {
+		return Oncall{}, microerror.Maskf(invalidConfigError, "GITHUB_WEBHOOK_SECRET environment variable must not be empty")
+	}
 
-func writeJSONResponse(w http.ResponseWriter, status int, data []byte) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
-	w.WriteHeader(status)
-	w.Write(data)
-}
+	oncall := Oncall{
+		logger:        c.Logger,
+		opsgenieToken: c.OpsgenieToken,
+		repositories:  c.Repositories,
+		users:         c.Users,
+		webhookSecret: []byte(c.WebhookSecret),
+	}
 
-func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	var response []byte
-
-	response, _ = json.Marshal(healthCheckResponse{Status: "webhook handler"})
-	writeJSONResponse(w, http.StatusOK, response)
+	return oncall, nil
 }
 
 func (o *Oncall) webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	var response []byte
 
-	h, err := githubhook.Parse(o.webhookSecret, r)
+	h, err := githubhook.New(r, o.webhookSecret)
 	if err != nil {
 		o.logger.Log("level", "error", "message", err.Error())
 		response, _ = json.Marshal(errorResponse{Error: "invalid request"})
@@ -145,29 +141,33 @@ func (o *Oncall) createRoutingRule(event githubhook.Event) error {
 	return nil
 }
 
-func New(c Config) (Oncall, error) {
-	if c.OpsgenieToken == "" {
-		return Oncall{}, microerror.Maskf(invalidConfigError, "OPSGENIE_TOKEN environment variable token must not be empty")
-	}
-	if c.WebhookSecret == "" {
-		return Oncall{}, microerror.Maskf(invalidConfigError, "GITHUB_WEBHOOK_SECRET environment variable must not be empty")
-	}
-
-	oncall := Oncall{
-		logger:        c.Logger,
-		opsgenieToken: c.OpsgenieToken,
-		repositories:  c.Repositories,
-		users:         c.Users,
-		webhookSecret: []byte(c.WebhookSecret),
-	}
-
-	return oncall, nil
-}
-
 func (o *Oncall) NewServer() *http.ServeMux {
 	s := http.NewServeMux()
 	s.HandleFunc("/", defaultHandler)
 	s.HandleFunc(webhookEndpoint, o.webhookHandler)
 
 	return s
+}
+
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	var response []byte
+
+	response, _ = json.Marshal(healthCheckResponse{Status: "webhook handler"})
+	writeJSONResponse(w, http.StatusOK, response)
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func writeJSONResponse(w http.ResponseWriter, status int, data []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	w.WriteHeader(status)
+	w.Write(data)
 }

@@ -4,11 +4,11 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var invalidHookError = &microerror.Error{
-	Kind: "invalidHookError",
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailedError",
 }
 
-// IsInvalidHook asserts invalidHookError.
-func IsInvalidHook(err error) bool {
-	return microerror.Cause(err) == invalidHookError
+// IsExecutionFailed asserts executionFailedError.
+func IsExecutionFailed(err error) bool {
+	return microerror.Cause(err) == executionFailedError
 }
