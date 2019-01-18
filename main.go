@@ -13,11 +13,6 @@ import (
 	"github.com/giantswarm/auto-oncall/service"
 )
 
-const (
-	opsgenieTokenEnv       = "OPSGENIE_TOKEN"
-	githubWebhookSecretEnv = "GITHUB_WEBHOOK_SECRET"
-)
-
 var (
 	description string     = "This is the webhook handler application for creating opsgenie routing rules from github deployment events."
 	f           *flag.Flag = flag.New()
