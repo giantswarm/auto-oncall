@@ -34,36 +34,35 @@ type Hook struct {
 }
 
 // New reads a Hook from an incoming HTTP Request.
-func New(req *http.Request, secret []byte) (hook *Hook, err error) {
-	hook = new(Hook)
+func New(req *http.Request, secret []byte) (hook Hook, err error) {
 	if !strings.EqualFold(req.Method, "POST") {
-		return nil, microerror.Maskf(executionFailedError, fmt.Sprintf("%#q requests are not supported", req.Method))
+		return Hook{}, microerror.Maskf(executionFailedError, fmt.Sprintf("%#q requests are not supported", req.Method))
 	}
 
 	if hook.Signature = req.Header.Get("x-hub-signature"); len(hook.Signature) == 0 {
-		return nil, microerror.Maskf(executionFailedError, "no signature found")
+		return Hook{}, microerror.Maskf(executionFailedError, "no signature found")
 	}
 
 	if hook.EventName = req.Header.Get("x-github-event"); len(hook.EventName) == 0 {
-		return nil, microerror.Maskf(executionFailedError, "no event found")
+		return Hook{}, microerror.Maskf(executionFailedError, "no event found")
 	}
 
 	if hook.ID = req.Header.Get("x-github-delivery"); len(hook.ID) == 0 {
-		return nil, microerror.Maskf(executionFailedError, "no event id found")
+		return Hook{}, microerror.Maskf(executionFailedError, "no event id found")
 	}
 
 	if !hook.signedBy(secret) {
-		return nil, microerror.Maskf(executionFailedError, "invalid signature found")
+		return Hook{}, microerror.Maskf(executionFailedError, "invalid signature found")
 	}
 
 	hook.Payload, err = ioutil.ReadAll(req.Body)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return Hook{}, microerror.Mask(err)
 	}
 
 	err = json.Unmarshal(hook.Payload, &hook.Event)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return Hook{}, microerror.Mask(err)
 	}
 
 	return hook, nil
