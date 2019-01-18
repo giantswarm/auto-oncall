@@ -1,4 +1,4 @@
-package webhook
+package endpoint
 
 import (
 	"github.com/giantswarm/microerror"

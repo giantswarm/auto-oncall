@@ -4,6 +4,15 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+var userNotFoundError = &microerror.Error{
+	Kind: "userNotFoundError",
+}
+
+// IsUserNotFound asserts userNotFoundError.
+func IsUserNotFound(err error) bool {
+	return microerror.Cause(err) == userNotFoundError
+}
+
 var executionFailedError = &microerror.Error{
 	Kind: "executionFailedError",
 }

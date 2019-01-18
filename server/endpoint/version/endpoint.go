@@ -10,9 +10,9 @@ import (
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	kithttp "github.com/go-kit/kit/transport/http"
 
-	"github.com/giantswarm/api/server/middleware"
-	"github.com/giantswarm/api/service"
-	"github.com/giantswarm/api/service/version"
+	"github.com/giantswarm/auto-oncall/server/middleware"
+	"github.com/giantswarm/auto-oncall/service"
+	"github.com/giantswarm/auto-oncall/service/version"
 )
 
 const (
@@ -30,17 +30,6 @@ type Config struct {
 	Logger     micrologger.Logger
 	Middleware *middleware.Middleware
 	Service    *service.Service
-}
-
-// DefaultConfig provides a default configuration to create a new version
-// endpoint by best effort.
-func DefaultConfig() Config {
-	return Config{
-		// Dependencies.
-		Logger:     nil,
-		Middleware: nil,
-		Service:    nil,
-	}
 }
 
 // New creates a new configured version endpoint.

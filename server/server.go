@@ -4,32 +4,26 @@
 package server
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"sync"
 
 	"github.com/giantswarm/microerror"
 	microserver "github.com/giantswarm/microkit/server"
-	microvalidator "github.com/giantswarm/microkit/validator"
 	"github.com/giantswarm/micrologger"
-	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/auto-oncall/flag"
-	"github.com/giantswarm/auto-oncall/server/endpoint/webhook"
+	"github.com/giantswarm/auto-oncall/server/endpoint"
+	"github.com/giantswarm/auto-oncall/server/middleware"
 	"github.com/giantswarm/auto-oncall/service"
 )
 
 // Config represents the configuration used to create a new server object.
 type Config struct {
-	Flag    *flag.Flag
-	Logger  micrologger.Logger
-	Service *service.Service
-	Viper   *viper.Viper
+	Flag       *flag.Flag
+	Logger     micrologger.Logger
+	Middleware *middleware.Middleware
+	Service    *service.Service
+	Viper      *viper.Viper
 
 	ProjectName string
 }
@@ -48,13 +42,27 @@ type Server struct {
 func New(config Config) (*Server, error) {
 	var err error
 
+	var middlewareCollection *middleware.Middleware
+	{
+		c := middleware.Config{
+			Logger:  config.Logger,
+			Service: config.Service,
+		}
+
+		middlewareCollection, err = middleware.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var endpointCollection *endpoint.Endpoint
 	{
 		endpointConfig := endpoint.Config{
-			Flag:    config.Flag,
-			Logger:  config.Logger,
-			Service: config.Service,
-			Viper:   config.Viper,
+			Flag:       config.Flag,
+			Logger:     config.Logger,
+			Middleware: middlewareCollection,
+			Service:    config.Service,
+			Viper:      config.Viper,
 		}
 		endpointCollection, err = endpoint.New(endpointConfig)
 		if err != nil {

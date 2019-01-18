@@ -1,5 +1,5 @@
 // Package githubhook implements handling and verification of github webhooks.
-package github
+package webhook
 
 import (
 	"crypto/hmac"
@@ -31,6 +31,41 @@ type Hook struct {
 	Signature string
 	// Payload contains the raw contents of the webhook request.
 	Payload []byte
+}
+
+// NewHook returns a Hook from an incoming HTTP Request.
+func (s *Service) NewHook(req *http.Request) (hook Hook, err error) {
+	if !strings.EqualFold(req.Method, "POST") {
+		return Hook{}, microerror.Maskf(executionFailedError, fmt.Sprintf("%#q requests are not supported", req.Method))
+	}
+
+	if hook.Signature = req.Header.Get("x-hub-signature"); len(hook.Signature) == 0 {
+		return Hook{}, microerror.Maskf(executionFailedError, "no signature found")
+	}
+
+	if hook.EventName = req.Header.Get("x-github-event"); len(hook.EventName) == 0 {
+		return Hook{}, microerror.Maskf(executionFailedError, "no event found")
+	}
+
+	if hook.ID = req.Header.Get("x-github-delivery"); len(hook.ID) == 0 {
+		return Hook{}, microerror.Maskf(executionFailedError, "no event id found")
+	}
+
+	if signedBy(hook, s.webhookSecret) {
+		return Hook{}, microerror.Maskf(executionFailedError, "invalid signature found")
+	}
+
+	hook.Payload, err = ioutil.ReadAll(req.Body)
+	if err != nil {
+		return Hook{}, microerror.Mask(err)
+	}
+
+	err = json.Unmarshal(hook.Payload, &hook.Event)
+	if err != nil {
+		return Hook{}, microerror.Mask(err)
+	}
+
+	return hook, nil
 }
 
 func signBody(body, secret []byte) []byte {

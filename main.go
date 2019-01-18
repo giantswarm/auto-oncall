@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"os"
 
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
@@ -104,7 +104,7 @@ func main() {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
-	daemonCommand.PersistentFlags().String(f.Service.Oncall.Config, "/etc/auto-oncall/config.yaml", "Application configuration file.")
+	daemonCommand.PersistentFlags().String(f.Service.Oncall.ConfigFilePath, "/etc/auto-oncall/config.yaml", "Application configuration file.")
 
 	f.Service.Oncall.OpsgenieToken = os.Getenv(opsgenieTokenEnv)
 	f.Service.Oncall.WebhookSecret = os.Getenv(githubWebhookSecretEnv)

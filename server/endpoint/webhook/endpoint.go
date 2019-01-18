@@ -1,4 +1,4 @@
-package version
+package webhook
 
 import (
 	"context"
@@ -12,9 +12,6 @@ import (
 
 	"github.com/giantswarm/auto-oncall/server/middleware"
 	"github.com/giantswarm/auto-oncall/service"
-	"github.com/giantswarm/auto-oncall/service/version"
-	"github.com/giantswarm/auto-oncall/service/webhook"
-	"github.com/giantswarm/auto-oncall/service/webhook/github"
 )
 
 const (
@@ -34,25 +31,11 @@ type Config struct {
 	Service    *service.Service
 }
 
-// DefaultConfig provides a default configuration to create a new version
-// endpoint by best effort.
-func DefaultConfig() Config {
-	return Config{
-		// Dependencies.
-		Logger:     nil,
-		Middleware: nil,
-		Service:    nil,
-	}
-}
-
 // New creates a new configured version endpoint.
 func New(config Config) (*Endpoint, error) {
 	// Dependencies.
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "logger must not be empty")
-	}
-	if config.Middleware == nil {
-		return nil, microerror.Maskf(invalidConfigError, "middleware must not be empty")
 	}
 	if config.Service == nil {
 		return nil, microerror.Maskf(invalidConfigError, "service must not be empty")
@@ -71,58 +54,36 @@ type Endpoint struct {
 
 func (e *Endpoint) Decoder() kithttp.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (interface{}, error) {
-		return nil, nil
+		return r, nil
 	}
 }
 
 func (e *Endpoint) Encoder() kithttp.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+		endpointResponse := response.(*Response)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		return json.NewEncoder(w).Encode(response)
+		w.WriteHeader(endpointResponse.StatusCode)
+		return json.NewEncoder(w).Encode(endpointResponse.Body)
 	}
 }
 
 func (e *Endpoint) Endpoint() kitendpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 
-		var response []byte
+		r := request.(*http.Request)
+
+		response := DefaultResponse()
 
 		h, err := e.Service.Webhook.NewHook(r)
 		if err != nil {
-			o.logger.Log("level", "error", "message", err.Error())
-			response, _ = json.Marshal(errorResponse{Error: "invalid request"})
-			writeJSONResponse(w, http.StatusBadRequest, response)
+			response.Body.Message = err.Error()
+			response.StatusCode = http.StatusBadRequest
 		} else {
-			response, _ = json.Marshal(healthCheckResponse{Status: "webhook request received"})
-			writeJSONResponse(w, http.StatusOK, response)
-
-			o.logger.Log("level", "debug", "message", fmt.Sprintf("received push event into repository %#q", h.Event.Repository.Name), "user", h.Event.Pusher.Name, "ref", h.Event.Ref)
-
-			if h.Event.Ref == masterRef && stringInSlice(h.Event.Repository.Name, o.repositories) {
-				o.logger.Log("level", "debug", "repository", h.Event.Repository.Name, "message", "push event into master branch received", "user", h.Event.Pusher.Name)
-
-				err := o.createRoutingRule(h.Event)
-				if err != nil {
-					o.logger.Log("level", "error", "message", err.Error())
-				}
-			}
+			response.Body.Message = "webhook request received"
+			response.StatusCode = http.StatusOK
 		}
 
-		versionRequest := version.DefaultRequest()
-
-		serviceResponse, err := e.Service.Version.Get(ctx, versionRequest)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		response := DefaultResponse()
-		response.Description = serviceResponse.Description
-		response.GitCommit = serviceResponse.GitCommit
-		response.GoVersion = serviceResponse.GoVersion
-		response.Name = serviceResponse.Name
-		response.OSArch = serviceResponse.OSArch
-		response.Source = serviceResponse.Source
+		go e.Service.Webhook.Process(h)
 
 		return response, nil
 	}

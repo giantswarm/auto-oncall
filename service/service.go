@@ -2,12 +2,12 @@
 package service
 
 import (
-	kitlog "github.com/go-kit/kit/log"
-
-	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
+	"github.com/spf13/viper"
 
-	"github.com/giantswarm/auto-oncall/service"
+	"github.com/giantswarm/auto-oncall/flag"
+	"github.com/giantswarm/auto-oncall/service/version"
 	"github.com/giantswarm/auto-oncall/service/webhook"
 )
 
@@ -37,6 +37,7 @@ type Service struct {
 // New creates a new configured service object.
 func New(config Config) (*Service, error) {
 	var err error
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
