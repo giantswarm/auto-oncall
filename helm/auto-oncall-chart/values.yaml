@@ -8,9 +8,6 @@ tls:
   enabled: true
   issuerType: ClusterIssuer
   issuerName: letsencrypt-prod
-# list of applications, configured for automated oncall rules
-repositories:
-  - test-oncall
 # Opsgenie token string
 opsgenieToken: <OPSGENIE_TOKEN>
 # user mapping `github_user:opsgenie user' 

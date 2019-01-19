@@ -5,5 +5,4 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   config.yaml: |
-    repositories: {{range .Values.repositories }}{{ . }},{{ end }}
     users: {{ range $key, $val := .Values.users }}{{ $key }}:{{ $val }},{{ end }}
