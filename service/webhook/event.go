@@ -1,20 +1,21 @@
 package webhook
 
-type Event struct {
-	HeadCommit HeadCommit `json:"head_commit"`
-	Pusher     Pusher     `json:"pusher"`
-	Ref        string     `json:"ref"`
-	Repository Repository `json:"repository"`
+type Commit struct {
+	Author Author `json:"author"`
+	SHA    string `json:"sha"`
 }
 
-type HeadCommit struct {
-	ID string `json:"id"`
+type Author struct {
+	Login string `json:"login"`
+}
+
+type DeploymentEvent struct {
+	Environment string     `json:"environment"`
+	Ref         string     `json:"ref"`
+	Repository  Repository `json:"repository"`
 }
 
 type Repository struct {
-	Name string `json:"name"`
-}
-
-type Pusher struct {
-	Name string `json:"name"`
+	FullName string `json:"full_name"`
+	Name     string `json:"name"`
 }

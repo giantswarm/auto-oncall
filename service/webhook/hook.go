@@ -24,9 +24,7 @@ type Hook struct {
 	// ID specifies the ID of a github webhook request.
 	ID string
 	// Event contains unmarshaled webhook.
-	Event Event
-	// Event specifies the event name of a github webhook request.
-	EventName string
+	DeploymentEvent DeploymentEvent
 	// Signature specifies the signature of a github webhook request.
 	Signature string
 	// Payload contains the raw contents of the webhook request.
@@ -43,10 +41,6 @@ func (s *Service) NewHook(req *http.Request) (hook Hook, err error) {
 		return Hook{}, microerror.Maskf(executionFailedError, "no signature found")
 	}
 
-	if hook.EventName = req.Header.Get("x-github-event"); len(hook.EventName) == 0 {
-		return Hook{}, microerror.Maskf(executionFailedError, "no event found")
-	}
-
 	if hook.ID = req.Header.Get("x-github-delivery"); len(hook.ID) == 0 {
 		return Hook{}, microerror.Maskf(executionFailedError, "no event id found")
 	}
@@ -60,7 +54,7 @@ func (s *Service) NewHook(req *http.Request) (hook Hook, err error) {
 		return Hook{}, microerror.Mask(err)
 	}
 
-	err = json.Unmarshal(hook.Payload, &hook.Event)
+	err = json.Unmarshal(hook.Payload, &hook.DeploymentEvent)
 	if err != nil {
 		return Hook{}, microerror.Mask(err)
 	}

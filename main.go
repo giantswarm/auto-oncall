@@ -98,7 +98,6 @@ func main() {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
-	daemonCommand.PersistentFlags().StringSlice(f.Service.Oncall.Repositories, []string{}, "List of repositories names, separated by comma.")
 	daemonCommand.PersistentFlags().String(f.Service.Oncall.OpsgenieToken, "", "Opsgenie API token.")
 	daemonCommand.PersistentFlags().StringToString(f.Service.Oncall.Users, map[string]string{}, "github_id:opsgenie_id mapppings, separated by comma.")
 	daemonCommand.PersistentFlags().String(f.Service.Oncall.WebhookSecret, "", "Github organization webhook secret.")

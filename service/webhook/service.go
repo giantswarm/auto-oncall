@@ -1,8 +1,12 @@
 package webhook
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/giantswarm/microerror"
@@ -11,15 +15,15 @@ import (
 )
 
 const (
-	masterRef       = "refs/heads/master"
-	routingRuleTTL  = time.Hour * time.Duration(1)
-	routingRuleType = "match-all-conditions"
+	commitEndpoint        = "https://api.github.com/repos/%s/commits/%s"
+	testEnvironmentPrefix = "g"
+	routingRuleTTL        = time.Hour * time.Duration(1)
+	routingRuleType       = "match-all-conditions"
 )
 
 type Config struct {
 	Logger micrologger.Logger
 
-	Repositories  []string
 	OpsgenieToken string
 	Users         map[string]string
 	WebhookSecret string
@@ -28,7 +32,6 @@ type Config struct {
 type Service struct {
 	logger        micrologger.Logger
 	opsgenieToken string
-	repositories  []string
 	users         map[string]string
 	webhookSecret []byte
 }
@@ -43,7 +46,6 @@ func New(c Config) (*Service, error) {
 
 	service := &Service{
 		logger:        c.Logger,
-		repositories:  c.Repositories,
 		opsgenieToken: c.OpsgenieToken,
 		users:         c.Users,
 		webhookSecret: []byte(c.WebhookSecret),
@@ -54,20 +56,32 @@ func New(c Config) (*Service, error) {
 
 // Process performs processing of the webhook.
 func (s *Service) Process(h Hook) {
-	s.logger.Log("level", "debug", "message", fmt.Sprintf("received push event into repository %#q", h.Event.Repository.Name), "user", h.Event.Pusher.Name, "ref", h.Event.Ref)
+	if !strings.HasPrefix(h.DeploymentEvent.Environment, testEnvironmentPrefix) {
+		s.logger.Log("level", "debug", "message", "received deployment event", "repository", h.DeploymentEvent.Repository.Name, "ref", h.DeploymentEvent.Ref, "environment", h.DeploymentEvent.Environment)
 
-	if h.Event.Ref == masterRef && stringInSlice(h.Event.Repository.Name, s.repositories) {
-		s.logger.Log("level", "debug", "repository", h.Event.Repository.Name, "message", "push event into master branch received", "user", h.Event.Pusher.Name)
-
-		err := s.createRoutingRule(h.Event)
+		err := s.createRoutingRule(h.DeploymentEvent)
 		if err != nil {
 			s.logger.Log("level", "error", "message", err.Error())
 		}
 	}
 }
 
-func (s *Service) createRoutingRule(event Event) error {
+func (s *Service) createRoutingRule(event DeploymentEvent) error {
 	var err error
+
+	// get commit from refference
+	resp, err := http.Get(fmt.Sprintf(commitEndpoint, event.Repository.FullName, event.Ref))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+
+	commit := Commit{}
+	err = json.Unmarshal(body, &commit)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	var opsGenieService *opsgenie.OpsGenie
 	{
@@ -85,16 +99,19 @@ func (s *Service) createRoutingRule(event Event) error {
 		opsgenie.Rule{
 			Value: event.Repository.Name,
 		},
+		opsgenie.Rule{
+			Value: event.Environment,
+		},
 	}
 
 	ttl := time.Now().Add(routingRuleTTL).UTC().Unix()
 
-	user, ok := s.users[event.Pusher.Name]
+	user, ok := s.users[commit.Author.Login]
 	if !ok {
-		return microerror.Maskf(userNotFoundError, event.Pusher.Name)
+		return microerror.Maskf(userNotFoundError, commit.Author.Login)
 	}
 	routingRule := &opsgenie.RoutingRule{
-		Name:       fmt.Sprintf("auto-%s-%s-%s-%s", event.Repository.Name, event.HeadCommit.ID[:5], event.Pusher.Name, strconv.FormatInt(ttl, 10)),
+		Name:       fmt.Sprintf("auto-%s-%s-%s-%s", event.Repository.Name, commit.SHA[:5], commit.Author.Login, strconv.FormatInt(ttl, 10)),
 		Conditions: conditions,
 		Type:       routingRuleType,
 		User:       user,
@@ -113,13 +130,4 @@ func (s *Service) createRoutingRule(event Event) error {
 	s.logger.Log("level", "debug", "message", fmt.Sprintf("routing rule %#q for user %#q has been created", routingRule.Name, routingRule.User))
 
 	return nil
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
