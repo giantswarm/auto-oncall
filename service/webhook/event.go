@@ -2,7 +2,6 @@ package webhook
 
 type Commit struct {
 	Author Author `json:"author"`
-	SHA    string `json:"sha"`
 }
 
 type Author struct {
@@ -10,9 +9,18 @@ type Author struct {
 }
 
 type DeploymentEvent struct {
-	Environment string     `json:"environment"`
-	Ref         string     `json:"ref"`
-	Repository  Repository `json:"repository"`
+	Deployment Deployment
+	Repository Repository `json:"repository"`
+}
+
+type Deployment struct {
+	Creator     Creator
+	Environment string `json:"environment"`
+	Ref         string `json:"ref"`
+}
+
+type Creator struct {
+	Login string `json:"login"`
 }
 
 type Repository struct {

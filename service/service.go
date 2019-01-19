@@ -2,6 +2,8 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
@@ -55,11 +57,18 @@ func New(config Config) (*Service, error) {
 
 	var webhookService *webhook.Service
 	{
+		users := make(map[string]string)
+		userList := config.Viper.GetString(config.Flag.Service.Oncall.Users)
+		for _, user := range strings.Split(userList, ",") {
+			kv := strings.Split(user, ":")
+			users[kv[0]] = kv[1]
+		}
+
 		webhookConfig := webhook.Config{
 			Logger: config.Logger,
 
 			OpsgenieToken: config.Viper.GetString(config.Flag.Service.Oncall.OpsgenieToken),
-			Users:         config.Viper.GetStringMapString(config.Flag.Service.Oncall.Users),
+			Users:         users,
 			WebhookSecret: config.Viper.GetString(config.Flag.Service.Oncall.WebhookSecret),
 		}
 
