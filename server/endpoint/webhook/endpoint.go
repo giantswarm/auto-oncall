@@ -40,16 +40,15 @@ func New(config Config) (*Endpoint, error) {
 	if config.Middleware == nil {
 		return nil, microerror.Maskf(invalidConfigError, "middleware must not be empty")
 	}
-
 	if config.Service == nil {
 		return nil, microerror.Maskf(invalidConfigError, "service must not be empty")
 	}
 
-	newEndpoint := &Endpoint{
+	e := &Endpoint{
 		Config: config,
 	}
 
-	return newEndpoint, nil
+	return e, nil
 }
 
 type Endpoint struct {
