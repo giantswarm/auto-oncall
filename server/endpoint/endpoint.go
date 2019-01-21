@@ -41,12 +41,12 @@ func New(config Config) (*Endpoint, error) {
 
 	var versionEndpoint *version.Endpoint
 	{
-		versionConfig := version.Config{
+		c := version.Config{
 			Logger:     config.Logger,
 			Middleware: config.Middleware,
 			Service:    config.Service,
 		}
-		versionEndpoint, err = version.New(versionConfig)
+		versionEndpoint, err = version.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -54,21 +54,21 @@ func New(config Config) (*Endpoint, error) {
 
 	var webhookEndpoint *webhook.Endpoint
 	{
-		webhookConfig := webhook.Config{
+		c := webhook.Config{
 			Logger:     config.Logger,
 			Middleware: config.Middleware,
 			Service:    config.Service,
 		}
-		webhookEndpoint, err = webhook.New(webhookConfig)
+		webhookEndpoint, err = webhook.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	newEndpoint := &Endpoint{
+	e := &Endpoint{
 		Version: versionEndpoint,
 		Webhook: webhookEndpoint,
 	}
 
-	return newEndpoint, nil
+	return e, nil
 }

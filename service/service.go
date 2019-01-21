@@ -42,14 +42,14 @@ func New(config Config) (*Service, error) {
 
 	var versionService *version.Service
 	{
-		versionConfig := version.Config{
+		c := version.Config{
 			Description: config.Description,
 			GitCommit:   config.GitCommit,
 			Name:        config.Name,
 			Source:      config.Source,
 		}
 
-		versionService, err = version.New(versionConfig)
+		versionService, err = version.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
