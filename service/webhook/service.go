@@ -25,21 +25,22 @@ const (
 type Config struct {
 	Logger micrologger.Logger
 
-	OpsgenieToken string
+	Opsgenie      *opsgenie.OpsGenie
 	Users         map[string]string
 	WebhookSecret string
 }
 
 type Service struct {
-	logger        micrologger.Logger
-	opsgenieToken string
+	logger micrologger.Logger
+
+	opsgenie      *opsgenie.OpsGenie
 	users         map[string]string
 	webhookSecret []byte
 }
 
 func New(c Config) (*Service, error) {
-	if c.OpsgenieToken == "" {
-		return nil, microerror.Maskf(invalidConfigError, "Opsgenie token must not be empty")
+	if c.Opsgenie == nil {
+		return nil, microerror.Maskf(invalidConfigError, "Opsgenie service must not be empty")
 	}
 	if c.WebhookSecret == "" {
 		return nil, microerror.Maskf(invalidConfigError, "Github organization webhook secret must not be empty")
@@ -47,7 +48,7 @@ func New(c Config) (*Service, error) {
 
 	service := &Service{
 		logger:        c.Logger,
-		opsgenieToken: c.OpsgenieToken,
+		opsgenie:      c.Opsgenie,
 		users:         c.Users,
 		webhookSecret: []byte(c.WebhookSecret),
 	}
@@ -72,18 +73,6 @@ func (s *Service) Process(h Hook) {
 
 func (s *Service) createRoutingRule(event DeploymentEvent) error {
 	var err error
-
-	var opsGenieService *opsgenie.OpsGenie
-	{
-		serviceConfig := opsgenie.Config{
-			Logger:    s.logger,
-			AuthToken: s.opsgenieToken,
-		}
-		opsGenieService, err = opsgenie.New(serviceConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
 
 	conditions := []opsgenie.Rule{
 		opsgenie.Rule{
@@ -133,13 +122,13 @@ func (s *Service) createRoutingRule(event DeploymentEvent) error {
 		User:       user,
 	}
 
-	err = opsGenieService.CreateEscalation(routingRule)
+	err = s.opsgenie.CreateEscalation(routingRule)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 	s.logger.Log("level", "debug", "message", fmt.Sprintf("escalation %#q for user %#q has been created", routingRule.Name, routingRule.User))
 
-	err = opsGenieService.CreateRoutingRule(routingRule)
+	err = s.opsgenie.CreateRoutingRule(routingRule)
 	if err != nil {
 		return microerror.Mask(err)
 	}

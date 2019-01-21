@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
 
+	"github.com/giantswarm/opsctl/service/opsgenie"
+
 	"github.com/giantswarm/auto-oncall/flag"
 	"github.com/giantswarm/auto-oncall/service/version"
 	"github.com/giantswarm/auto-oncall/service/webhook"
@@ -55,6 +57,18 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var opsgenieService *opsgenie.OpsGenie
+	{
+		c := opsgenie.Config{
+			Logger:    config.Logger,
+			AuthToken: config.Viper.GetString(config.Flag.Service.Oncall.OpsgenieToken),
+		}
+		opsgenieService, err = opsgenie.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var webhookService *webhook.Service
 	{
 		users := make(map[string]string)
@@ -67,7 +81,7 @@ func New(config Config) (*Service, error) {
 		webhookConfig := webhook.Config{
 			Logger: config.Logger,
 
-			OpsgenieToken: config.Viper.GetString(config.Flag.Service.Oncall.OpsgenieToken),
+			Opsgenie:      opsgenieService,
 			Users:         users,
 			WebhookSecret: config.Viper.GetString(config.Flag.Service.Oncall.WebhookSecret),
 		}
