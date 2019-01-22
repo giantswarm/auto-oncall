@@ -9,14 +9,14 @@ metadata:
   annotations:
     kubernetes.io/tls-acme: "true"
 spec:
-  {{- if .Values.Installation.V1.Autooncall.tls.enabled }}
+  {{- if .Values.Installation.V1.AutoOncall.tls.enabled }}
   tls:
   - hosts:
-    - {{ .Values.Installation.V1.Autooncall.host }}
+    - {{ .Values.Installation.V1.AutoOncall.host }}
     secretName: auto-oncall-certs
   {{- end }}
   rules:
-  - host: {{ .Values.Installation.V1.Autooncall.host }}
+  - host: {{ .Values.Installation.V1.AutoOncall.host }}
     http:
       paths:
       - backend:

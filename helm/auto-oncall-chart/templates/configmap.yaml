@@ -7,4 +7,4 @@ data:
   config.yaml: |
     service:
       oncall:
-        users: {{ range $key, $val := .Values.Installation.V1.Autooncall.users }}{{ $key }}:{{ $val }},{{ end }}
+        users: {{ range $key, $val := .Values.Installation.V1.AutoOncall.users }}{{ $key }}:{{ $val }},{{ end }}
