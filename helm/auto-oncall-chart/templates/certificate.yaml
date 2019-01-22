@@ -1,4 +1,4 @@
-{{- if .Values.Installation.V1.Autooncall.TLS.enabled }}
+{{- if .Values.Installation.V1.Autooncall.tls.enabled }}
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
@@ -15,6 +15,6 @@ spec:
       http01:
         ingress: ""
   issuerRef:
-    kind: {{ .Values.Installation.V1.Autooncall.TLS.issuertype }}
-    name: {{ .Values.Installation.V1.Autooncall.TLS.issuername }}
+    kind: {{ .Values.Installation.V1.Autooncall.tls.issuertype }}
+    name: {{ .Values.Installation.V1.Autooncall.tls.issuername }}
 {{- end }}

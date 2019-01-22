@@ -9,7 +9,7 @@ metadata:
   annotations:
     kubernetes.io/tls-acme: "true"
 spec:
-  {{- if .Values.Installation.V1.Autooncall.TLS.enabled }}
+  {{- if .Values.Installation.V1.Autooncall.tls.enabled }}
   tls:
   - hosts:
     - {{ .Values.Installation.V1.Autooncall.host }}
