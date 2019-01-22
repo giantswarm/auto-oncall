@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   config.yaml: |
+    server:
+      listen:
+        address: 'http://0.0.0.0:8000'
     service:
       oncall:
         {{- $oncall := dict "users" (list) }}
