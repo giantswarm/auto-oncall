@@ -52,17 +52,6 @@ spec:
             port: 8000
           initialDelaySeconds: 10
           timeoutSeconds: 10
-        env:
-        - name: OPSGENIE_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: auto-oncall-secret
-              key: opsgenieToken
-        - name: GITHUB_WEBHOOK_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: auto-oncall-secret
-              key: githubWebhookSecret
         resources:
           requests:
             cpu: 10m

@@ -1,4 +1,4 @@
-{{- if .Values.tls.enabled }}
+{{- if .Values.Installation.V1.Autooncall.TLS.enabled }}
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
@@ -7,14 +7,14 @@ metadata:
 spec:
   secretName: auto-oncall-certs
   dnsNames:
-  - {{ .Values.host }}
+  - {{ .Values.Installation.V1.Autooncall.host }}
   acme:
     config:
     - domains:
-      - {{ .Values.host }}
+      - {{ .Values.Installation.V1.Autooncall.host }}
       http01:
         ingress: ""
   issuerRef:
-    kind: {{ .Values.tls.issuerType }}
-    name: {{ .Values.tls.issuerName }}
+    kind: {{ .Values.Installation.V1.Autooncall.TLS.issuertype }}
+    name: {{ .Values.Installation.V1.Autooncall.TLS.issuername }}
 {{- end }}
