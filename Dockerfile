@@ -1,7 +1,7 @@
 FROM alpine:3.8
 RUN apk add --no-cache ca-certificates
 
-ADD ./oncall /oncall
+ADD ./auto-oncall /auto-oncall
 
 EXPOSE 8000
-ENTRYPOINT ["/oncall"]
+ENTRYPOINT ["/auto-oncall"]

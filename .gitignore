@@ -1,0 +1,6 @@
+*.swp
+auto-oncall
+TODO
+*.swp
+!vendor/**
+

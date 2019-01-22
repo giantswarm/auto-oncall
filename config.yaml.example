@@ -1,0 +1,10 @@
+---
+repositories:
+  - aws-operator
+  - kvm-operator
+  - azure-operator
+  - cluster-operator
+  - test-oncall
+
+users:
+  corest: vol@giantswarm.io
