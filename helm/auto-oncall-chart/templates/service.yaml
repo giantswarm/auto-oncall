@@ -10,4 +10,3 @@ spec:
   - port: 8000
   selector:
     app: auto-oncall
-
