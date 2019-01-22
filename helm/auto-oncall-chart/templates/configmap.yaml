@@ -7,4 +7,8 @@ data:
   config.yaml: |
     service:
       oncall:
-        users: {{ range $key, $val := .Values.Installation.V1.AutoOncall.users }}{{ $key }}:{{ $val }},{{ end }}
+        {{- $oncall := dict "users" (list) }}
+        {{- range $key, $val := .Values.Installation.V1.AutoOncall.users -}}
+        {{- $noop := printf "%s:%s" $key $val | append $oncall.users | set $oncall "users" -}}
+        {{- end }}
+        users: {{ join "," $oncall.users }} 
