@@ -26,8 +26,8 @@ spec:
           - key: config.yaml
             path: config.yaml
       - name: auto-oncall-secret
-        configMap:
-          name: auto-oncall-secret
+        secret:
+          secretName: auto-oncall-secret
           items:
           - key: secret.yaml
             path: secret.yaml
