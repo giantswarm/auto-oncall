@@ -5,4 +5,6 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   config.yaml: |
-    users: {{ range $key, $val := .Values.users }}{{ $key }}:{{ $val }},{{ end }}
+    service:
+      oncall:
+        users: {{ range $key, $val := .Values.users }}{{ $key }}:{{ $val }},{{ end }}
