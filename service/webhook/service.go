@@ -23,22 +23,32 @@ const (
 )
 
 type Config struct {
-	Logger micrologger.Logger
+	HttpClient *http.Client
+	Logger     micrologger.Logger
 
+	GithubToken   string
 	Opsgenie      *opsgenie.OpsGenie
 	Users         map[string]string
 	WebhookSecret string
 }
 
 type Service struct {
-	logger micrologger.Logger
+	httpClient *http.Client
+	logger     micrologger.Logger
 
+	githubToken   string
 	opsgenie      *opsgenie.OpsGenie
 	users         map[string]string
 	webhookSecret []byte
 }
 
 func New(c Config) (*Service, error) {
+	if c.GithubToken == "" {
+		return nil, microerror.Maskf(invalidConfigError, "GithubToken must not be empty")
+	}
+	if c.HttpClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "HttpClient must not be empty")
+	}
 	if c.Opsgenie == nil {
 		return nil, microerror.Maskf(invalidConfigError, "Opsgenie service must not be empty")
 	}
@@ -47,6 +57,8 @@ func New(c Config) (*Service, error) {
 	}
 
 	service := &Service{
+		httpClient:    c.HttpClient,
+		githubToken:   c.GithubToken,
 		logger:        c.Logger,
 		opsgenie:      c.Opsgenie,
 		users:         c.Users,
@@ -92,10 +104,18 @@ func (s *Service) createRoutingRule(event DeploymentEvent) error {
 	{
 		if event.Deployment.Creator.Login == botAccount {
 			// get commit from refference
-			resp, err := http.Get(fmt.Sprintf(commitEndpoint, event.Repository.FullName, event.Deployment.Ref))
+			req, err := http.NewRequest(fmt.Sprintf(commitEndpoint, event.Repository.FullName, event.Deployment.Ref))
 			if err != nil {
 				return microerror.Mask(err)
 			}
+
+			req.Header.Set("Authorization", fmt.Sprintf("token %s", s.githubToken))
+
+			resp, err := s.httpClient.Do(req)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
 			body, err := ioutil.ReadAll(resp.Body)
 			resp.Body.Close()
 

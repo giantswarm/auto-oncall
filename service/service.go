@@ -2,7 +2,9 @@
 package service
 
 import (
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -79,8 +81,10 @@ func New(config Config) (*Service, error) {
 		}
 
 		webhookConfig := webhook.Config{
-			Logger: config.Logger,
+			HttpClient: &http.Client{Timeout: time.Second * 10},
+			Logger:     config.Logger,
 
+			GithubToken:   config.Viper.GetString(config.Flag.Service.Oncall.GithubToken),
 			Opsgenie:      opsgenieService,
 			Users:         users,
 			WebhookSecret: config.Viper.GetString(config.Flag.Service.Oncall.WebhookSecret),
