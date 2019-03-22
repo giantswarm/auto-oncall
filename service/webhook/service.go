@@ -104,7 +104,7 @@ func (s *Service) createRoutingRule(event DeploymentEvent) error {
 	{
 		if event.Deployment.Creator.Login == botAccount {
 			// get commit from refference
-			req, err := http.NewRequest(fmt.Sprintf(commitEndpoint, event.Repository.FullName, event.Deployment.Ref))
+			req, err := http.NewRequest("GET", fmt.Sprintf(commitEndpoint, event.Repository.FullName, event.Deployment.Ref), nil)
 			if err != nil {
 				return microerror.Mask(err)
 			}
