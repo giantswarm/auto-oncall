@@ -46,9 +46,16 @@ const routingRuleTmpl = `{
     "criteria": {
         "type": "{{.Type}}",
         "conditions": [
-            {{$n := len .Conditions }}{{ range $i, $e := .Conditions -}}
+            {{ if ne .Cluster "" -}}
             {
                 "field": "message",
+                "operation": "contains",
+                "expectedValue": "{{ .Cluster }}"
+            },
+            {{ end -}}
+            {{$n := len .Conditions }}{{ range $i, $e := .Conditions -}}
+            {
+                "field": "description",
                 "not": {{$e.Not}},
                 "operation": "contains",
                 "expectedValue": "{{$e.Value}}"

@@ -20,6 +20,7 @@ type Criteria struct {
 type RoutingRule struct {
 	Name       string
 	User       string
+	Cluster    string
 	Conditions []Rule
 	Type       string
 }

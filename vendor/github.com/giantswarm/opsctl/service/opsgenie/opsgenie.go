@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/micrologger"
 	"io"
 	"net/http"
 	"text/template"
+
+	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
 )
 
 const (
