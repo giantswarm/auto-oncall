@@ -133,7 +133,7 @@ func (s *Service) createRoutingRule(event DeploymentEvent) error {
 	}
 
 	routingRule := &opsgenie.RoutingRule{
-		Name:       fmt.Sprintf("auto-%s-%s-%s-%s", event.Repository.Name, event.Deployment.Ref, githubLogin, strconv.FormatInt(ttl, 10)),
+		Name:       fmt.Sprintf("auto-%s-%s-%s-%s-%s", event.Repository.Name, event.Deployment.Ref, event.Deployment.Environment, githubLogin, strconv.FormatInt(ttl, 10)),
 		Cluster:    event.Deployment.Environment,
 		Conditions: conditions,
 		Type:       routingRuleType,
