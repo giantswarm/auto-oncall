@@ -19,6 +19,7 @@ var (
 	gitCommit   string     = "n/a"
 	name        string     = "auto-oncall"
 	source      string     = "https://github.com/giantswarm/auto-oncall"
+	version     string     = "0.1.0"
 )
 
 func main() {
@@ -88,6 +89,7 @@ func main() {
 			GitCommit:   gitCommit,
 			Name:        name,
 			Source:      source,
+			Version:     version,
 		}
 
 		newCommand, err = command.New(c)

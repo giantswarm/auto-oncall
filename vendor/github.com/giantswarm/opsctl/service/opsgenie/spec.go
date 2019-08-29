@@ -9,6 +9,7 @@ type Condition struct {
 	Order         int    `json:"order"`
 	Not           bool   `json:"not"`
 	ExpectedValue string `json:"expectedValue"`
+	Field         string `json:"field"`
 }
 
 type Criteria struct {
