@@ -7,7 +7,12 @@ metadata:
     app: {{ .Values.name }}
     kubernetes.io/ingress.class: nginx.ingress.kubernetes.io
   annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    {{- if .Values.ingress.tls.enabled }}
     kubernetes.io/tls-acme: "true"
+    certmanager.k8s.io/cluster-issuer: {{ .Values.ingress.tls.issuername}}
+    {{- end }}
 spec:
   {{- if .Values.ingress.tls.enabled }}
   tls:
