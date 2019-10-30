@@ -1,10 +1,10 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: auto-oncall
-  namespace: {{ .Values.namespace }}
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: auto-oncall
+    app: {{ .Values.name }}
     kubernetes.io/ingress.class: nginx.ingress.kubernetes.io
   annotations:
     kubernetes.io/tls-acme: "true"
@@ -13,13 +13,13 @@ spec:
   tls:
   - hosts:
     - {{ .Values.Installation.V1.AutoOncall.host }}
-    secretName: auto-oncall-certs
+    secretName: {{ .Values.name }}-certs
   {{- end }}
   rules:
   - host: {{ .Values.Installation.V1.AutoOncall.host }}
     http:
       paths:
       - backend:
-          serviceName: auto-oncall
+          serviceName: {{ .Values.name }}
           servicePort: 8000
         path: /

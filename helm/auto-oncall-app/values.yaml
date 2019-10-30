@@ -1,0 +1,10 @@
+name: auto-oncall
+namespace: auto-oncall-app
+
+userID: 1000
+groupID: 1000
+
+image:
+  registry: quay.io
+  name: giantswarm/auto-oncall
+  tag: v0.1.0

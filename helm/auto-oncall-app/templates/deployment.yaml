@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auto-oncall
-  namespace: {{ .Values.namespace }}
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: auto-oncall
+    app: {{ .Values.name }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -12,41 +12,41 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: auto-oncall
+      app: {{ .Values.name }}
   template:
     metadata:
       labels:
-        app: auto-oncall
+        app: {{ .Values.name }}
     spec:
       volumes:
-      - name: auto-oncall-configmap
+      - name: {{ .Values.name }}-configmap
         configMap:
-          name: auto-oncall-configmap
+          name: {{ .Values.name }}-configmap
           items:
           - key: config.yaml
             path: config.yaml
-      - name: auto-oncall-secret
+      - name: {{ .Values.name }}-secret
         secret:
-          secretName: auto-oncall-secret
+          secretName: {{ .Values.name }}-secret
           items:
           - key: secret.yaml
             path: secret.yaml
       containers:
-      - name: auto-oncall
-        image: quay.io/giantswarm/auto-oncall:latest
+      - name: {{ .Values.name }}
+        image: quay.io/giantswarm/{{ .Values.name }}:latest
         volumeMounts:
-        - name: auto-oncall-configmap
-          mountPath: /var/run/auto-oncall/configmap/
-        - name: auto-oncall-secret
-          mountPath: /var/run/auto-oncall/secret/
+        - name: {{ .Values.name }}-configmap
+          mountPath: /var/run/{{ .Values.name }}/configmap/
+        - name: {{ .Values.name }}-secret
+          mountPath: /var/run/{{ .Values.name }}/secret/
           readOnly: true
         ports:
         - name: http
           containerPort: 8000
         args:
         - daemon
-        - --config.dirs=/var/run/auto-oncall/configmap/
-        - --config.dirs=/var/run/auto-oncall/secret/
+        - --config.dirs=/var/run/{{ .Values.name }}/configmap/
+        - --config.dirs=/var/run/{{ .Values.name }}/secret/
         - --config.files=config
         - --config.files=secret
         livenessProbe:

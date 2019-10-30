@@ -2,10 +2,10 @@
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: auto-oncall
-  namespace: {{ .Values.namespace }}
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
 spec:
-  secretName: auto-oncall-certs
+  secretName: {{ .Values.name }}-certs
   dnsNames:
   - {{ .Values.Installation.V1.AutoOncall.host }}
   acme:
