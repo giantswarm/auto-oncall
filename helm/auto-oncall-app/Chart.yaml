@@ -1,0 +1,8 @@
+apiVersion: v1
+name: auto-oncall-app
+namespace: auto-oncall-app
+appVersion: 0.1.0
+description: Application to manage routing rules on merge events
+home: https://github.com/giantswarm/auto-oncall
+version: [[ .Version ]]
+
