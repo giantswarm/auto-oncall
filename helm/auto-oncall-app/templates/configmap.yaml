@@ -11,7 +11,7 @@ data:
     service:
       oncall:
         {{- $oncall := dict "users" (list) }}
-        {{- range $key, $val := .Values.Installation.V1.AutoOncall.users -}}
+        {{- range $key, $val := .Values.users -}}
         {{- $noop := printf "%s:%s" $key $val | append $oncall.users | set $oncall "users" -}}
         {{- end }}
         users: {{ join "," $oncall.users }} 

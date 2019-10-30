@@ -4,6 +4,19 @@ namespace: auto-oncall-app
 userID: 1000
 groupID: 1000
 
+ingress:
+  host: host
+  tls:
+    enabled: true
+    issuertype: ClusterIssuer
+    issuername: issuer-name
+
+users:
+  user1: user@mail
+
+# secrets config
+secretYaml:
+
 image:
   registry: quay.io
   name: giantswarm/auto-oncall
